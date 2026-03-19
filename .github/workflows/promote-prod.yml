@@ -25,7 +25,7 @@ jobs:
           data = json.load(sys.stdin)
           packages = data if isinstance(data, list) else data.get('data', [])
           for p in packages:
-              if p['version'] == '${{ github.event.inputs.version }}' and p['extension'] == '.whl' and p['is_copyable']:
+              if p['extension'] == '.whl' and p['is_copyable']:
                   print(p['identifier_perm'])
                   break
           ")
@@ -35,7 +35,6 @@ jobs:
             exit 1
           fi
 
-          echo "Promoting slug: $SLUG"
           cloudsmith copy atulya_s/acme-pypi-qa/$SLUG acme-pypi-prod
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
