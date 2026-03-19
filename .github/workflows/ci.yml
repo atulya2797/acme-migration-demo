@@ -25,12 +25,15 @@ jobs:
           pip install build pytest
 
       - name: Build package
+        working-directory: acme-data-utils
         run: python -m build
 
       - name: Install package
+        working-directory: acme-data-utils
         run: pip install dist/*.whl
 
       - name: Run tests
+        working-directory: acme-data-utils
         run: pytest tests/ -v
 
       - name: Upload build artifacts
