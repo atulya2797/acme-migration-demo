@@ -23,9 +23,11 @@ jobs:
           pip install build cloudsmith-cli
 
       - name: Build package
+        working-directory: acme-data-utils
         run: python -m build
 
       - name: Publish to Cloudsmith
+        working-directory: acme-data-utils
         run: |
           cloudsmith push python atulya_s/acme-pypi-qa dist/*
         env:
