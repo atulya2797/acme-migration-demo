@@ -1,0 +1,23 @@
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Install Cloudsmith CLI
+        run: |
+          pip install cloudsmith-cli
+
+      - name: Promote package from QA to Prod
+        run: |
+          cloudsmith mv python atulya_s/acme-pypi-qa/acme-data-utils \
+            python atulya_s/acme-pypi-prod/acme-data-utils
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
