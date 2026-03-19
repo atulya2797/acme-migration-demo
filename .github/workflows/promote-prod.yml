@@ -18,26 +18,14 @@ jobs:
       - name: Install Cloudsmith CLI
         run: pip install cloudsmith-cli
 
-      - name: Debug package list
-        run: |
-          cloudsmith list packages atulya_s/acme-pypi-qa \
-            --query "name:acme-data-utils version:${{ github.event.inputs.version }}" \
-            -F json
-        env:
-          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
-
       - name: Promote .whl from QA to Prod
         run: |
-          SLUG=$(cloudsmith list packages atulya_s/acme-pypi-qa \
-            --query "name:acme-data-utils version:${{ github.event.inputs.version }}" \
-            -F json | python3 -c "
+          SLUG=$(cloudsmith list packages atulya_s/acme-pypi-qa --query "name:acme-data-utils version:${{ github.event.inputs.version }}" -F json | python3 -c "
           import sys, json
           data = json.load(sys.stdin)
           packages = data if isinstance(data, list) else data.get('data', [])
           for p in packages:
-              if p['version'] == '${{ github.event.inputs.version }}' \
-                and p['extension'] == '.whl' \
-                and p['is_copyable']:
+              if p['version'] == '${{ github.event.inputs.version }}' and p['extension'] == '.whl' and p['is_copyable']:
                   print(p['identifier_perm'])
                   break
           ")
@@ -48,6 +36,6 @@ jobs:
           fi
 
           echo "Promoting slug: $SLUG"
-          cloudsmith copy atulya_s/acme-pypi-qa/$SLUG atulya_s/acme-pypi-prod
+          cloudsmith copy atulya_s/acme-pypi-qa/$SLUG acme-pypi-prod
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
