@@ -2,10 +2,10 @@ name: Promote to Production
 
 on:
   workflow_dispatch:
-
-permissions:
-  contents: read
-  deployments: write
+    inputs:
+      version:
+        description: 'Version to promote (e.g. 0.1.8)'
+        required: true
 
 jobs:
   promote:
@@ -16,13 +16,24 @@ jobs:
 
     steps:
       - name: Install Cloudsmith CLI
-        run: |
-          pip install cloudsmith-cli
+        run: pip install cloudsmith-cli
 
-      - name: Promote package from QA to Prod
+      - name: Promote .whl from QA to Prod
         run: |
-          cloudsmith copy \
-            atulya_s/acme-pypi-qa/acme-data-utils@1.1.1 \
-            atulya_s/acme-pypi-prod
+          SLUG=$(cloudsmith list packages atulya_s/acme-pypi-qa \
+            --query "name:acme-data-utils version:${{ github.event.inputs.version }}" \
+            -F json | python3 -c "
+          import sys, json
+          packages = json.load(sys.stdin)
+          for p in packages:
+              if p['version'] == '${{ github.event.inputs.version }}' \
+                and p['extension'] == '.whl' \
+                and p['is_copyable']:
+                  print(p['identifier_perm'])
+                  break
+          ")
+
+          echo "Promoting slug: $SLUG"
+          cloudsmith copy atulya_s/acme-pypi-qa/$SLUG atulya_s/acme-pypi-prod
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
