@@ -17,8 +17,6 @@ jobs:
 
       - name: Promote package from QA to Prod
         run: |
-          cloudsmith copy \
-            atulya_s/acme-pypi-qa/acme-data-utils \
-            atulya_s/acme-pypi-prod
+          cloudsmith copy atulya_s/acme-pypi-qa/acme-data-utils@0.1.8 atulya_s/acme-pypi-prod
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
